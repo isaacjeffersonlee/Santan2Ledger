@@ -7,7 +7,6 @@ import os
 
 
 class Selector:
-
     """Account selector object."""
 
     def __init__(self, data_dir: str = "data"):
@@ -28,13 +27,15 @@ class Selector:
                 columns=[
                     "date_str",
                     "description",
-                    "from_account",
-                    "to_account",
+                    "source_account",
+                    "target_account",
                     "amount",
                     "commodity",
                 ]
             ).to_pickle(self._prev_xact_df_path)
         self.prev_xact_df = pd.read_pickle(self._prev_xact_df_path)
+        self.new_xacts = []
+        self.new_accounts = []
 
     def fzf_select(self, items: list[str]) -> Union[str, None]:
         """Fuzzy select an item from items list using fzf and return result.
@@ -87,27 +88,36 @@ class Selector:
         pass
 
     def append_xact(self, xact: Xact) -> None:
-        """Append xact to self.prev_xact_df.
+        """Append xact to self.prev_xact_df and self.new_xacts.
 
         Parameters
         ----------
         xact : Xact
             Transaction object, whose attributes are used as values in the dict
-            which gets appended to self.prev_xact_df
+            which gets appended to self.prev_xact_df and self.new_xacts
         """
         xact_dict = {
-            "from_account": [xact.from_account],
-            "to_account": [xact.to_account],
+            "source_account": [xact.source_account],
+            "target_account": [xact.target_account],
             "amount": [xact.amount],
             "description": [xact.description],
             "date_str": [xact.date_str],
             "commodity": [xact.commodity],
         }
         self.prev_xact_df = pd.concat([self.prev_xact_df, pd.DataFrame(xact_dict)])
+        self.new_xacts.append(xact)
 
     def update_prev_xact_file(self) -> None:
         """Export current self.prev_xact_df to pickle file."""
         self.prev_xact_df.to_pickle(self._prev_xact_df_path)
+
+    def fzf_select_account(self, accounts_file_path: str) -> str:
+        # TODO: Write function body
+        pass
+
+    def get_target_account(self) -> str:
+        # TODO: Write function body
+        pass
 
 
 if __name__ == "__main__":
@@ -121,14 +131,14 @@ if __name__ == "__main__":
     ]
 
     example_xact = Xact(
-        from_account="Assets:Santander:Spending",
+        source_account="Assets:Santander:Spending",
         amount=-420.00,
         description="CARD PAYMENT TO TFL TRAVEL CH,1.65 GBP, RATE 1.00/GBP ON 01-08-2022",
         date_str="04/08/2022",
         commodity="GBP",
     )
 
-    example_xact.to_account = selector.fzf_select(example_accounts)
+    example_xact.target_account = selector.fzf_select(example_accounts)
     print(example_xact.to_ledger_str())
     # print(selector.prev_xact_df)
     # print(selector.append_xact(xact=example_xact))
