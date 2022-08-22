@@ -1,3 +1,5 @@
 {
-  "ledger_dir": "/home/isaac/Documents/Track/Ledger",
+  "ledger_dir": "/home/isaac/Documents/Track/Ledger/",
+  "ledger_file": "/home/isaac/Documents/Track/Ledger/personal.ledger",
+  "accounts_file": "/home/isaac/Documents/Track/Ledger/accounts.ledger"
 }
