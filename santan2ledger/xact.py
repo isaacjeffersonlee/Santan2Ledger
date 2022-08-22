@@ -4,19 +4,19 @@ class Xact:
 
     def __init__(
         self,
-        from_account: str,
+        source_account: str,
         amount: float,
         description: str,
         date_str: str,
         commodity: str,
-        to_account: str = ""
+        target_account: str = ""
     ):
         """Initialize the transaction attributes.
 
         Parameters
         ----------
-        from_account : str
-            The account the money comes from, e.g a "Assets:Bank:Santander:Spending "
+        source_account : str
+            The account the money comes from, e.g a "Assets:Santander:Spending"
         amount : float
             The transaction amount
         date_str : str
@@ -25,11 +25,11 @@ class Xact:
             The commodotity of the transaction, e.g 'GBP'
         """
 
-        self.from_account = from_account
-        self.to_account = to_account
+        self.source_account = source_account
+        self.target_account = target_account
         self.amount = amount
         self.description = description
-        self.date_str = date_str
+        self.date_str = date_str.replace('/', '-')
         self.commodity = commodity
 
     def to_ledger_str(self) -> str:
@@ -44,8 +44,8 @@ class Xact:
         """
         return (
             f"{self.date_str} * {self.description}\n"
-            + f"  {self.to_account}          {-1 * self.amount} {self.commodity}\n"
-            + f"  {self.from_account}"
+            + f"  {self.target_account}          {-1 * self.amount} {self.commodity}\n"
+            + f"  {self.source_account}"
         )
 
     def _get_destination_account(self) -> None:
@@ -54,11 +54,11 @@ class Xact:
 
 if __name__ == "__main__":
     xact = Xact(
-        from_account="Assets:Santander:Spending",
+        source_account="Assets:Santander:Spending",
         amount=-20.79,
         description="TFL TRAVEL CH (VIA SAMSUNG PAY)",
         date_str="05/08/2022",
         commodity="GBP",
     )
-    xact.to_account = "Expenses:Spending:Groceries"
+    xact.target_account = "Expenses:Spending:Groceries"
     print(xact.to_ledger_str())
