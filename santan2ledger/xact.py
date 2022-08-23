@@ -48,9 +48,6 @@ class Xact:
             + f"  {self.source_account}"
         )
 
-    def _get_destination_account(self) -> None:
-        pass
-
 
 if __name__ == "__main__":
     xact = Xact(
