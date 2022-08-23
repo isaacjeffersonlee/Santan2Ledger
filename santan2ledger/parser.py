@@ -21,8 +21,7 @@ class Parser:
         self.statements_dir = self.ledger_dir + "Statements/"
 
     def _get_encoding(self, file_path: str) -> str:
-        """
-        Return the encoding type of the input file.
+        """Return the encoding type of the input file.
 
         Uses the chardet library to read in and determine the encoding of the
         input file located at file_path.
@@ -43,8 +42,7 @@ class Parser:
         return encoding
 
     def _file_contents_to_str(self, file_path: str) -> str:
-        """
-        Read file at file_path and return contents as a single string.
+        """Read file at file_path and return contents as a single string.
 
         Parameters
         ----------
@@ -76,8 +74,7 @@ class Parser:
             f.write(text + "\n")
 
     def txt_to_df(self, file_path: str, field_sep: str = ":") -> pd.DataFrame:
-        """
-        Convert .txt file found at file_path to Pandas DataFrame and return result.
+        """Convert .txt file found at file_path to Pandas DataFrame and return result.
 
         Text file with regular entries, separated by field_sep, E.g
 
@@ -146,7 +143,7 @@ class Parser:
 
         return df
 
-    def _get_account_list(self) -> list[str]:
+    def get_account_list(self) -> list[str]:
         """Read accounts.ledger and return list of account names.
 
         Returns
@@ -160,28 +157,6 @@ class Parser:
             s.replace("account ", "")
             for s in re.findall(pattern="account.*", string=accounts_str)
         ]
-
-    def clean_text(self, text: str, extra_to_remove: list[str]) -> str:
-        """Simplify the text and return cleaned string.
-
-        Remove all non-alpha chars also all strings
-        from extra_to_remove and lowercase
-
-        Parameters
-        ----------
-        text : str
-            Text to clean
-        extra_to_remove : list[str]
-            List of extra words to remove from text
-
-        Returns
-        -------
-        str
-            Cleaned string
-        """
-        text = re.sub(r"[^a-zA-Z\s]", "", text.lower())
-        text = re.sub(r"gbp", r"", text)
-        return text
 
     def append_xacts_to_ledger_file(self, xacts: list[Xact]) -> None:
         """Format xacts as newline separated string and write to ledger file.
@@ -216,27 +191,25 @@ if __name__ == "__main__":
     # print(parser._append_text_to_file(text="Hello darkness my old friend...",
     #                                   file_path="/home/isaac/Documents/Track/Ledger/accounts.ledger"))
 
-    # test_accounts = parser._get_account_list()
+    # test_accounts = parser.get_account_list()
     # print(test_accounts)
     # parser.append_accounts_to_file(accounts=test_accounts)
 
-    from xact import Xact
+    # test_xact_1 = Xact(
+    #     source_account="Assets:Santander:Spending",
+    #     target_account="Expenses:Spending:Food",
+    #     amount=-420.00,
+    #     description="CARD PAYMENT TO TFL TRAVEL CH,1.65 GBP, RATE 1.00/GBP ON 01-08-2022",
+    #     date_str="04/08/2022",
+    #     commodity="GBP",
+    # )
+    # test_xact_2 = Xact(
+    #     source_account="Assets:Santander:Main",
+    #     target_account="Expenses:TEST",
+    #     amount=10.00,
+    #     description="CARD PAYMENT TO TFL TRAVEL CH,1.65 GBP, RATE 1.00/GBP ON 01-08-2022",
+    #     date_str="05/07/2022",
+    #     commodity="GBP",
+    # )
 
-    test_xact_1 = Xact(
-        source_account="Assets:Santander:Spending",
-        target_account="Expenses:Spending:Food",
-        amount=-420.00,
-        description="CARD PAYMENT TO TFL TRAVEL CH,1.65 GBP, RATE 1.00/GBP ON 01-08-2022",
-        date_str="04/08/2022",
-        commodity="GBP",
-    )
-    test_xact_2 = Xact(
-        source_account="Assets:Santander:Main",
-        target_account="Expenses:TEST",
-        amount=10.00,
-        description="CARD PAYMENT TO TFL TRAVEL CH,1.65 GBP, RATE 1.00/GBP ON 01-08-2022",
-        date_str="05/07/2022",
-        commodity="GBP",
-    )
-
-    parser.append_xacts_to_ledger_file([test_xact_1, test_xact_2])
+    # parser.append_xacts_to_ledger_file([test_xact_1, test_xact_2])
