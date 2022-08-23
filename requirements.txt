@@ -1,5 +1,5 @@
 chardet
 fuzzywuzzy
 pandas
-pyfzf
 rich
+prompt_toolkit
