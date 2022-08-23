@@ -15,7 +15,8 @@ import os
 # TODO: Fix duplication of accounts from accounts.ledger when adding new accounts
 # TODO: Add pickup where left off according to last date recorded
 # TODO: Add weighting for matches with higher freq
-# TODO: Add missing docstrings
+# TODO: Polish UI
+
 
 # https://ansi.gabebanks.net/
 def red(text: str) -> str:
@@ -81,7 +82,7 @@ class Selector:
         message: str = "> ",
         toolbar_str: str = "",
     ) -> str:
-        """Prompt for input with fuzzy autocompletion and vi-mode. 
+        """Prompt for input with fuzzy autocompletion and vi-mode.
 
         Parameters
         ----------
@@ -244,9 +245,9 @@ class Selector:
         xact : Xact
             Transaction to get target account of
         prev_account_list : list[str]
-            List of accounts to use for fuzzy autocompletion 
+            List of accounts to use for fuzzy autocompletion
         progress : str
-            String passed from main loop, giving indication of 
+            String passed from main loop, giving indication of
             how many accounts have been processed
 
         Returns
