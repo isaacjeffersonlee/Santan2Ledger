@@ -16,6 +16,8 @@ import os
 # TODO: Add pickup where left off according to last date recorded
 # TODO: Add weighting for matches with higher freq
 # TODO: Polish UI
+# TODO: Package for installation and portability
+# TODO: Add README.md
 
 
 # https://ansi.gabebanks.net/
