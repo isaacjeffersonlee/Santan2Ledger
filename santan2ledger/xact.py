@@ -43,7 +43,7 @@ class Xact:
                   Assets:Santander:Spending
         """
         return (
-            f"{self.date_str} * {self.description}\n"
+            f"{self.date_str} *{self.description}\n"
             + f"  {self.target_account}          {-1 * self.amount} {self.commodity}\n"
             + f"  {self.source_account}"
         )
