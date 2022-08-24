@@ -4,17 +4,18 @@ from prompt_toolkit.completion import FuzzyWordCompleter
 from prompt_toolkit.shortcuts import prompt
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.enums import EditingMode
+from prompt_toolkit.formatted_text import ANSI
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.shortcuts import print_container
-from prompt_toolkit.widgets import Frame, TextArea
+from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.layout.containers import Window
+from prompt_toolkit.widgets import Frame
 from xact import Xact
 import pandas as pd
 import os
 
-# TODO: Fix date string parsing being the wrong way around
-# TODO: Fix duplication of accounts from accounts.ledger when adding new accounts
+# TODO: Better go back system with keybindings
 # TODO: Add pickup where left off according to last date recorded
-# TODO: Add weighting for matches with higher freq
 # TODO: Polish UI
 # TODO: Package for installation and portability
 # TODO: Add README.md
@@ -24,6 +25,18 @@ import os
 def red(text: str) -> str:
     """Color the text using ansi escapes."""
     escape_code = "\033[31;1m"
+    return escape_code + text + "\033[0m"
+
+
+def gray(text: str) -> str:
+    """Color the text using ansi escapes."""
+    escape_code = "\033[90;1m"  # Technically "bright black"
+    return escape_code + text + "\033[0m"
+
+
+def white(text: str) -> str:
+    """Color the text using ansi escapes."""
+    escape_code = "\033[37;1m"
     return escape_code + text + "\033[0m"
 
 
@@ -42,6 +55,18 @@ def yellow(text: str) -> str:
 def blue(text: str) -> str:
     """Color the text using ansi escapes."""
     escape_code = "\033[34;1m"
+    return escape_code + text + "\033[0m"
+
+
+def magenta(text: str) -> str:
+    """Color the text using ansi escapes."""
+    escape_code = "\033[35;1m"
+    return escape_code + text + "\033[0m"
+
+
+def cyan(text: str) -> str:
+    """Color the text using ansi escapes."""
+    escape_code = "\033[36;1m"
     return escape_code + text + "\033[0m"
 
 
@@ -74,7 +99,6 @@ class Selector:
                 ]
             ).to_pickle(self._prev_xact_df_path)
         self.prev_xact_df = pd.read_pickle(self._prev_xact_df_path)
-        self.new_xacts = []
         self.new_accounts = set()
 
     def autocomplete_prompt(
@@ -209,13 +233,13 @@ class Selector:
                 return df["target_account"].head(1).item()
 
     def append_xact(self, xact: Xact) -> None:
-        """Append xact to self.prev_xact_df and self.new_xacts.
+        """Append xact to self.prev_xact_df.
 
         Parameters
         ----------
         xact : Xact
             Transaction object, whose attributes are used as values in the dict
-            which gets appended to self.prev_xact_df and self.new_xacts
+            which gets appended to self.prev_xact_df
         """
         xact_dict = {
             "source_account": [xact.source_account],
@@ -226,7 +250,6 @@ class Selector:
             "commodity": [xact.commodity],
         }
         self.prev_xact_df = pd.concat([self.prev_xact_df, pd.DataFrame(xact_dict)])
-        self.new_xacts.append(xact)
 
     def update_prev_xact_file(self) -> None:
         """Export current self.prev_xact_df to pickle file."""
@@ -262,22 +285,33 @@ class Selector:
         desc_to_match = xact.description
         match = self._get_matching_account_name(desc_to_match)
         xact.target_account = "[Unknown]"
+        pretty_ledger_string = ANSI(
+            magenta(f"{xact.date_str}")
+            + " *"
+            + white(f"{xact.description}\n")
+            + gray(f"  {xact.target_account}")
+            + magenta(f"          {-1 * xact.amount} {xact.commodity}\n")
+            + cyan(f"  {xact.source_account}")
+        )
         print_container(
             Frame(
-                TextArea(text=xact.to_ledger_str()),
+                Window(
+                    FormattedTextControl(pretty_ledger_string),
+                    # style="bg:#88ff88 #000000",
+                ),
                 title=progress,
-            )
+            ),
         )
         if match:
-            print("Suggested match: " + green(match))
+            print("┌───" + gray("[Unknown]") + " << " + green(match))
         else:
-            print(red("No similar transactions found!"))
+            print("┌───" + red("No similar transactions found!"))
 
         target_account = self.autocomplete_prompt(
             items=account_list,
             default=match,
             toolbar_str=progress + " Hit <Enter> to accept suggested match ",
-            message="➜ ",
+            message="└─────>> "
         )
         # Update new accounts set
         self.new_accounts = self.new_accounts.union({target_account})
