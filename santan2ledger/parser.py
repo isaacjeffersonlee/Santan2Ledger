@@ -10,8 +10,8 @@ class Parser:
 
     """Object used to parse data."""
 
-    def __init__(self):
-        with open("../config.json", "r") as f:
+    def __init__(self, config_path: str):
+        with open(config_path, "r") as f:
             credentials = json.load(f)
         self.ledger_dir = credentials["ledger_dir"]
         if self.ledger_dir[-1] != "/":
@@ -179,9 +179,10 @@ class Parser:
             List of account names, E.g
             ["Expenses:Food", "Assets:Cash", ...]
         """
-        accounts_str = "account "
-        accounts_str += "\naccount ".join(accounts)
-        self._append_text_to_file(text=accounts_str, file_path=self.accounts_file_path)
+        if accounts:
+            accounts_str = "account "
+            accounts_str += "\naccount ".join(accounts)
+            self._append_text_to_file(text=accounts_str, file_path=self.accounts_file_path)
 
 
 if __name__ == "__main__":
