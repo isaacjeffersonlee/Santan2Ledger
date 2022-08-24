@@ -1,4 +1,6 @@
 import re
+import pandas as pd
+import os
 from fuzzywuzzy import fuzz  # fuzz.ratio(s1, s2)
 from prompt_toolkit.completion import FuzzyWordCompleter
 from prompt_toolkit.shortcuts import prompt
@@ -10,64 +12,12 @@ from prompt_toolkit.shortcuts import print_container
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.containers import Window
 from prompt_toolkit.widgets import Frame
-from xact import Xact
-import pandas as pd
-import os
+from santan2ledger.xact import Xact
+import santan2ledger.colors as colors
 
-# TODO: Better go back system with keybindings
-# TODO: Add pickup where left off according to last date recorded
 # TODO: Polish UI
 # TODO: Package for installation and portability
 # TODO: Add README.md
-
-
-# https://ansi.gabebanks.net/
-def red(text: str) -> str:
-    """Color the text using ansi escapes."""
-    escape_code = "\033[31;1m"
-    return escape_code + text + "\033[0m"
-
-
-def gray(text: str) -> str:
-    """Color the text using ansi escapes."""
-    escape_code = "\033[90;1m"  # Technically "bright black"
-    return escape_code + text + "\033[0m"
-
-
-def white(text: str) -> str:
-    """Color the text using ansi escapes."""
-    escape_code = "\033[37;1m"
-    return escape_code + text + "\033[0m"
-
-
-def green(text: str) -> str:
-    """Color the text using ansi escapes."""
-    escape_code = "\033[32;1m"
-    return escape_code + text + "\033[0m"
-
-
-def yellow(text: str) -> str:
-    """Color the text using ansi escapes."""
-    escape_code = "\033[33;1m"
-    return escape_code + text + "\033[0m"
-
-
-def blue(text: str) -> str:
-    """Color the text using ansi escapes."""
-    escape_code = "\033[34;1m"
-    return escape_code + text + "\033[0m"
-
-
-def magenta(text: str) -> str:
-    """Color the text using ansi escapes."""
-    escape_code = "\033[35;1m"
-    return escape_code + text + "\033[0m"
-
-
-def cyan(text: str) -> str:
-    """Color the text using ansi escapes."""
-    escape_code = "\033[36;1m"
-    return escape_code + text + "\033[0m"
 
 
 class Selector:
@@ -281,17 +231,17 @@ class Selector:
             Target account string. E.g
                 "Expenses:Spending:Travel"
         """
-        account_list = prev_account_list + list(self.new_accounts)
+        account_list = list(set(prev_account_list).union(self.new_accounts))
         desc_to_match = xact.description
         match = self._get_matching_account_name(desc_to_match)
         xact.target_account = "[Unknown]"
         pretty_ledger_string = ANSI(
-            magenta(f"{xact.date_str}")
+            colors.magenta(f"{xact.date_str}")
             + " *"
-            + white(f"{xact.description}\n")
-            + gray(f"  {xact.target_account}")
-            + magenta(f"          {-1 * xact.amount} {xact.commodity}\n")
-            + cyan(f"  {xact.source_account}")
+            + colors.white(f"{xact.description}\n")
+            + colors.gray(f"  {xact.target_account}")
+            + colors.magenta(f"          {-1 * xact.amount} {xact.commodity}\n")
+            + colors.cyan(f"  {xact.source_account}")
         )
         print_container(
             Frame(
@@ -303,15 +253,15 @@ class Selector:
             ),
         )
         if match:
-            print("┌───" + gray("[Unknown]") + " << " + green(match))
+            print("┌───" + colors.gray("[Unknown]") + " << " + colors.green(match))
         else:
-            print("┌───" + red("No similar transactions found!"))
+            print("┌───" + colors.red("No similar transactions found!"))
 
         target_account = self.autocomplete_prompt(
             items=account_list,
             default=match,
             toolbar_str=progress + " Hit <Enter> to accept suggested match ",
-            message="└─────>> "
+            message="└─────>> ",
         )
         # Update new accounts set
         self.new_accounts = self.new_accounts.union({target_account})
