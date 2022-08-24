@@ -15,10 +15,6 @@ from prompt_toolkit.widgets import Frame
 from santan2ledger.xact import Xact
 import santan2ledger.colors as colors
 
-# TODO: Polish UI
-# TODO: Package for installation and portability
-# TODO: Add README.md
-
 
 class Selector:
 
