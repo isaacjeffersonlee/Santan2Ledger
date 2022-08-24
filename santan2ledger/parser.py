@@ -137,7 +137,7 @@ class Parser:
             )
             df["Balance"] = balance_commodity_df[1].astype(float)
             # Convert Date column to Pandas datetime series
-            df["Date"] = pd.to_datetime(df["Date"])
+            df["Date"] = pd.to_datetime(df["Date"], format=" %d/%m/%Y")
         except KeyError:
             pass
 
