@@ -22,7 +22,7 @@ class Parser:
         self._ledger_file_path = credentials["ledger_file"]
         self._accounts_file_path = credentials["accounts_file"]
         self.statements_dir = self._ledger_dir + "Statements/"
-        self.backup_dir = self._ledger_dir + "Backups/"
+        self._backup_dir = self._ledger_dir + "Backups/"
 
     def _get_encoding(self, file_path: str) -> str:
         """Return the encoding type of the input file.
@@ -192,16 +192,16 @@ class Parser:
 
     def make_backup(self) -> None:
         """Backup ledger and accounts files."""
-        if not os.path.exists(self.backup_dir):
-            os.mkdir(self.backup_dir)
+        if not os.path.exists(self._backup_dir):
+            os.mkdir(self._backup_dir)
 
         shutil.copyfile(
             self._ledger_file_path,
-            self.backup_dir + "ledger_file-" + str(date.today()) + ".BAK",
+            self._backup_dir + "ledger_file-" + str(date.today()) + ".BAK",
         )
         shutil.copyfile(
             self._accounts_file_path,
-            self.backup_dir + "accounts_file-" + str(date.today()) + ".BAK",
+            self._backup_dir + "accounts_file-" + str(date.today()) + ".BAK",
         )
 
 
