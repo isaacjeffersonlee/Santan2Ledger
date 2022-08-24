@@ -182,7 +182,7 @@ class Selector:
             else:
                 return df["target_account"].head(1).item()
 
-    def append_xact(self, xact: Xact) -> None:
+    def append_xact_to_prev_df(self, xact: Xact) -> None:
         """Append xact to self.prev_xact_df.
 
         Parameters
