@@ -3,6 +3,9 @@ import pandas as pd
 import unicodedata
 import re
 import json
+import shutil
+import os
+from datetime import date
 from santan2ledger.xact import Xact
 
 
@@ -13,12 +16,13 @@ class Parser:
     def __init__(self, config_path: str):
         with open(config_path, "r") as f:
             credentials = json.load(f)
-        self.ledger_dir = credentials["ledger_dir"]
-        if self.ledger_dir[-1] != "/":
-            self.ledger_dir += "/"
-        self.ledger_file_path = credentials["ledger_file"]
-        self.accounts_file_path = credentials["accounts_file"]
-        self.statements_dir = self.ledger_dir + "Statements/"
+        self._ledger_dir = credentials["ledger_dir"]
+        if self._ledger_dir[-1] != "/":
+            self._ledger_dir += "/"
+        self._ledger_file_path = credentials["ledger_file"]
+        self._accounts_file_path = credentials["accounts_file"]
+        self.statements_dir = self._ledger_dir + "Statements/"
+        self.backup_dir = self._ledger_dir + "Backups/"
 
     def _get_encoding(self, file_path: str) -> str:
         """Return the encoding type of the input file.
@@ -152,7 +156,7 @@ class Parser:
             List of account strings, E.g
             ["Expenses:Food", "Assets:Cash", ...]
         """
-        accounts_str = self._file_contents_to_str(self.accounts_file_path)
+        accounts_str = self._file_contents_to_str(self._accounts_file_path)
         return [
             s.replace("account ", "")
             for s in re.findall(pattern="account.*", string=accounts_str)
@@ -168,7 +172,7 @@ class Parser:
         """
         xacts_str = "\n"
         xacts_str += "\n\n".join([xact.to_ledger_str() for xact in xacts])
-        self._append_text_to_file(text=xacts_str, file_path=self.ledger_file_path)
+        self._append_text_to_file(text=xacts_str, file_path=self._ledger_file_path)
 
     def append_accounts_to_file(self, accounts: list[str]) -> None:
         """Format accounts as a string and write to accounts.ledger.
@@ -182,7 +186,23 @@ class Parser:
         if accounts:
             accounts_str = "account "
             accounts_str += "\naccount ".join(accounts)
-            self._append_text_to_file(text=accounts_str, file_path=self.accounts_file_path)
+            self._append_text_to_file(
+                text=accounts_str, file_path=self._accounts_file_path
+            )
+
+    def make_backup(self) -> None:
+        """Backup ledger and accounts files."""
+        if not os.path.exists(self.backup_dir):
+            os.mkdir(self.backup_dir)
+
+        shutil.copyfile(
+            self._ledger_file_path,
+            self.backup_dir + "ledger_file-" + str(date.today()) + ".BAK",
+        )
+        shutil.copyfile(
+            self._accounts_file_path,
+            self.backup_dir + "accounts_file-" + str(date.today()) + ".BAK",
+        )
 
 
 if __name__ == "__main__":
