@@ -1,5 +1,12 @@
 {
-  "ledger_dir": "/home/isaac/Documents/Track/Ledger/",
-  "ledger_file": "/home/isaac/Documents/Track/Ledger/personal.ledger",
-  "accounts_file": "/home/isaac/Documents/Track/Ledger/accounts.ledger"
+  "ledger_dir": "/home/isaac/Documents/Track/Finances/",
+  "main_ledger_file": "Ledgers/main.ledger",
+  "other_ledger_files": { 
+    "main": "Ledgers/Santander/Main/santander_main.ledger",
+    "spending": "Ledgers/Santander/Spending/santander_spending.ledger"
+  },
+  "accounts_files": { 
+    "main": "Ledgers/Santander/Main/accounts.ledger",
+    "spending": "Ledgers/Santander/Spending/accounts.ledger"
+  }
 }

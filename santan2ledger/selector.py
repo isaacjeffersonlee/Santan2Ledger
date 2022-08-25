@@ -262,7 +262,6 @@ class Selector:
         # Update new accounts set
         self.new_accounts = self.new_accounts.union({target_account})
 
-        print(f"Input: {target_account}")
         return target_account
 
 

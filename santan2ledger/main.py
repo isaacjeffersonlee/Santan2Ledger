@@ -6,7 +6,7 @@ from santan2ledger.selector import Selector
 from santan2ledger.xact import Xact
 import santan2ledger.colors as colors
 
-# TODO: Use last row matching instead of date matching
+# TODO: Add matching also according to amounts
 # TODO: Add title page
 # TODO: Polish UI
 # TODO: Package for installation and portability
@@ -19,13 +19,13 @@ MODULE_PATH = os.path.abspath(
 ROOT_PATH = os.path.dirname(MODULE_PATH)
 
 
-def main(statement_file_name: str, date_after: str) -> None:
+def main(statement_file_name: str, account_key: str, date_after: str) -> None:
     try:
         # Define objects used for printing, selecting and parsing
         selector = Selector(
             data_dir=MODULE_PATH + "/data"
         )  # Initiate account selector object
-        parser = Parser(ROOT_PATH + "/config.json")
+        parser = Parser(account_key=account_key, config_path=ROOT_PATH + "/config.json")
         # Backup ledger and accounts file
         parser.make_backup()
         # Get list of previously defined accounts from accounts.ledger
@@ -33,6 +33,9 @@ def main(statement_file_name: str, date_after: str) -> None:
         source_account = selector.autocomplete_prompt(
             items=prev_accounts, message="Source Account: "
         )
+        selector.prev_xact_df = selector.prev_xact_df.loc[
+            selector.prev_xact_df["source_account"] == source_account
+        ]
         default_commodity = selector.autocomplete_prompt(
             items=["GBP", "CHF"], message="Default commodity: "
         )
@@ -46,7 +49,7 @@ def main(statement_file_name: str, date_after: str) -> None:
                 > pd.to_datetime(date_after.replace("-", "/"), format="%d/%m/%Y")
             ]
         elif not selector.prev_xact_df.empty:
-            last_recorded_date = ( # TODO: Use last row matching instead of date matching
+            last_recorded_date = (  # TODO: Use last row matching instead of date matching
                 pd.to_datetime(
                     selector.prev_xact_df.loc[
                         selector.prev_xact_df["source_account"] == source_account
@@ -56,12 +59,12 @@ def main(statement_file_name: str, date_after: str) -> None:
                 .tail(1)
                 .item()
             )
-            print(f"Last recorded date: {colors.magenta(str(last_recorded_date))})")
+            print(f"Last recorded date: {colors.magenta(str(last_recorded_date))}")
             # Only consider transactions entered after last_recorded_date
             statement_df = statement_df.loc[statement_df["Date"] > last_recorded_date]
 
         if statement_df.empty:
-            print(colors.red("No statements found!"))
+            print(colors.red("No (new) statements found!"))
             return None
         # Get list of already defined accounts
         print(f"{colors.green(str(statement_df.shape[0]))} transactions found...")
@@ -70,7 +73,7 @@ def main(statement_file_name: str, date_after: str) -> None:
         idx = 0
         while True:
             os.system("clear")
-            print(selector.prev_xact_df)
+            print(selector.prev_xact_df.tail(5))
             row = statement_df.iloc[idx]
             xact = Xact(
                 source_account=source_account,
@@ -146,9 +149,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()  # For command line args
 
     parser.add_argument(
-        "-f",
-        "--input-file",
-        dest="statements_file_name",
+        "statements_file_name",
         help="Santander exported txt file to parse.",
     )
     parser.add_argument(
@@ -157,9 +158,18 @@ if __name__ == "__main__":
         dest="date_after",
         help="Date to start parsing transactions after.",
     )
+    parser.add_argument(
+        "account_key",
+        help="Key corresponding to account for ledger and accounts files from config.json",
+    )
     args = parser.parse_args()
 
-    main(args.statements_file_name, args.date_after)
+    main(
+        statement_file_name=args.statements_file_name,
+        account_key=args.account_key,
+        date_after=args.date_after,
+    )
 
+    # For testing
     # statement_file_name = "Statements09012964141909.txt"
     # main(statement_file_name)

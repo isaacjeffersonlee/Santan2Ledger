@@ -13,14 +13,18 @@ class Parser:
 
     """Object used to parse data."""
 
-    def __init__(self, config_path: str):
+    def __init__(self, account_key: str, config_path: str):
         with open(config_path, "r") as f:
             credentials = json.load(f)
         self._ledger_dir = credentials["ledger_dir"]
         if self._ledger_dir[-1] != "/":
             self._ledger_dir += "/"
-        self._ledger_file_path = credentials["ledger_file"]
-        self._accounts_file_path = credentials["accounts_file"]
+        self._ledger_file_path = (
+            self._ledger_dir + credentials["other_ledger_files"][account_key]
+        )
+        self._accounts_file_path = (
+            self._ledger_dir + credentials["accounts_files"][account_key]
+        )
         self.statements_dir = self._ledger_dir + "Statements/"
         self._backup_dir = self._ledger_dir + "Backups/"
 
